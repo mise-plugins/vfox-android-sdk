@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdk:sdk-repository xmlns:sdk="http://schemas.android.com/sdk/android/repo/repository2/03">
+  <remotePackage path="cmdline-tools;11.0">
+    <revision><major>11</major><minor>0</minor></revision>
+    <archives>
+      <archive>
+        <complete><checksum type="sha1">111aaa</checksum><url>commandlinetools-linux-11.0.zip</url></complete>
+        <host-os>linux</host-os>
+      </archive>
+      <archive>
+        <complete><checksum type="sha1">111bbb</checksum><url>commandlinetools-mac-11.0.zip</url></complete>
+        <host-os>macosx</host-os>
+      </archive>
+    </archives>
+  </remotePackage>
+  <remotePackage path="cmdline-tools;13.0">
+    <revision><major>13</major><minor>0</minor></revision>
+    <archives>
+      <archive>
+        <complete><checksum type="sha1">333aaa</checksum><url>commandlinetools-linux-13.0.zip</url></complete>
+        <host-os>linux</host-os>
+      </archive>
+      <archive>
+        <complete><checksum type="sha1">333bbb</checksum><url>commandlinetools-mac-13.0.zip</url></complete>
+        <host-os>macosx</host-os>
+      </archive>
+    </archives>
+  </remotePackage>
+</sdk:sdk-repository>
