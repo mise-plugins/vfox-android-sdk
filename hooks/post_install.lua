@@ -51,7 +51,7 @@ function PLUGIN:PostInstall(ctx)
     move(root_path, temp_path)
 
     -- Recreate parent_path with proper structure
-    mkdir(target_parent)
+    mkdir(parent_path)
 
     -- Move temp to target
     move(temp_path, target_path)
