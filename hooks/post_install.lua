@@ -28,7 +28,7 @@ function PLUGIN:PostInstall(ctx)
     local target_path = file.join_path(parent_path, version)
 
     -- Cross-platform file operations (works on Unix and Windows)
-    local win = package.config:sub(1,1) == "\\"
+    local win = RUNTIME.osType == "windows"
     
     local function move(src, dst)
         if win then
