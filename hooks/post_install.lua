@@ -31,11 +31,9 @@ function PLUGIN:PostInstall(ctx)
     local win = RUNTIME.osType == "windows"
     
     local function move(src, dst)
-        if win then
-            print('move "' .. src .. '" "' .. dst .. '"')
-            return os.execute('move "' .. src .. '" "' .. dst .. '"')
-        else
-            return os.execute('mv "' .. src .. '" "' .. dst .. '"')
+        local ok, err = os.rename(src, dst)
+        if not ok then
+            error("Failed to move " .. src .. " to " .. dst .. ": " .. err)
         end
     end
     
