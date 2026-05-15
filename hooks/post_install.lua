@@ -29,35 +29,34 @@ function PLUGIN:PostInstall(ctx)
 
     -- Cross-platform file operations (works on Unix and Windows)
     local win = RUNTIME.osType == "windows"
-    
-    local function move(src, dst)
-        if win then
-            print('move "' .. src .. '" "' .. dst .. '"')
-            return os.execute('move "' .. src .. '" "' .. dst .. '"')
-        else
-            return os.execute('mv "' .. src .. '" "' .. dst .. '"')
-        end
-    end
-    
-    local function mkdir(path)
-        if win then
-            os.execute('mkdir "' .. path .. '"')
-        else
-            os.execute('mkdir -p "' .. path .. '"')
-        end
-    end
-    
+    local cmd = require("cmd")
+
     -- Move current rootPath to temp location
-    move(root_path, temp_path)
+    if win then
+        local systemroot = os.getenv("SystemRoot") or "C:\\Windows"
+        cmd.exec('move "' .. root_path .. '" "' .. temp_path .. '"', {cwd = systemroot})
+    else
+        cmd.exec('mv "' .. root_path .. '" "' .. temp_path .. '"')
+    end
 
     -- Recreate parent_path with proper structure
-    mkdir(parent_path)
+    if win then
+        local systemroot = os.getenv("SystemRoot") or "C:\\Windows"
+        cmd.exec('mkdir "' .. parent_path .. '"', {cwd = systemroot})
+    else
+        cmd.exec('mkdir -p "' .. parent_path .. '"')
+    end
 
     -- Move temp to target
-    move(temp_path, target_path)
+    if win then
+        local systemroot = os.getenv("SystemRoot") or "C:\\Windows"
+        cmd.exec('move "' .. temp_path .. '" "' .. target_path .. '"', {cwd = systemroot})
+    else
+        cmd.exec('mv "' .. temp_path .. '" "' .. target_path .. '"')
+    end
 
     -- Verify installation
-    if win then ext = ".bat" else ext = "" end
+    local ext = win and ".bat" or ""
     local sdkmanager_path = file.join_path(target_path, "bin", "sdkmanager" .. ext)
     if not file.exists(sdkmanager_path) then
         error("Installation verification failed: sdkmanager not found at " .. sdkmanager_path)
@@ -65,6 +64,6 @@ function PLUGIN:PostInstall(ctx)
 
     -- Make sure binaries are executable (for Unix systems)
     if not win then
-        os.execute("chmod +x " .. file.join_path(target_path, "bin", "*") .. " 2>/dev/null || true")
+        cmd.exec("chmod +x " .. file.join_path(target_path, "bin", "*") .. " 2>/dev/null || true")
     end
 end
