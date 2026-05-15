@@ -30,23 +30,32 @@ function PLUGIN:PostInstall(ctx)
     -- Cross-platform file operations (works on Unix and Windows)
     local win = RUNTIME.osType == "windows"
     
+    local function move(src, dst)
+        local ok, err = os.rename(src, dst)
+        if not ok then
+            error("Failed to move " .. src .. " to " .. dst .. ": " .. err)
+        end
+    end
+    
+    local function mkdir(path)
+        if win then
+            os.execute('mkdir "' .. path .. '"')
+        else
+            os.execute('mkdir -p "' .. path .. '"')
+        end
+    end
+    
     -- Move current rootPath to temp location
-    os.rename(root_path, temp_path)
+    move(root_path, temp_path)
 
     -- Recreate parent_path with proper structure
-    local cmd = require("cmd")
-    if win then
-        local systemroot = os.getenv("SystemRoot") or "C:\\Windows"
-        cmd.exec('mkdir "' .. parent_path .. '"', {cwd = systemroot})
-    else
-        cmd.exec('mkdir -p "' .. parent_path .. '"')
-    end
+    mkdir(parent_path)
 
     -- Move temp to target
-    os.rename(temp_path, target_path)
+    move(temp_path, target_path)
 
     -- Verify installation
-    local ext = win and ".bat" or ""
+    if win then ext = ".bat" else ext = "" end
     local sdkmanager_path = file.join_path(target_path, "bin", "sdkmanager" .. ext)
     if not file.exists(sdkmanager_path) then
         error("Installation verification failed: sdkmanager not found at " .. sdkmanager_path)
