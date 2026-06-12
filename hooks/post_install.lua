@@ -28,6 +28,10 @@ function PLUGIN:PostInstall(ctx)
     local is_windows = RUNTIME.osType == "windows"
     print("[android-sdk] PostInstall detected OS: " .. tostring(RUNTIME.osType) .. " (is_windows=" .. tostring(is_windows) .. ")")
 
+
+    error("Not pulling recent code")
+
+
     if is_windows then
         -- Move current rootPath to temp location
         os.execute('move "' .. root_path .. '" "' .. temp_path .. '"')
