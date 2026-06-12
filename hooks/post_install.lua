@@ -24,33 +24,34 @@ function PLUGIN:PostInstall(ctx)
     -- So we need to reorganize: move rootPath/* to rootPath/cmdline-tools/VERSION/
 
     local temp_path = root_path .. "-temp"
+    local parent_path = file.join_path(root_path, "cmdline-tools")
     local target_path = file.join_path(root_path, "cmdline-tools", version)
     local is_windows = RUNTIME.osType == "windows"
 
     if is_windows then
+        -- Remove stale temp from a previous failed install
+        os.execute('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
+
         -- Move current rootPath to temp location
         os.execute('move "' .. root_path .. '" "' .. temp_path .. '"')
 
-        -- Recreate rootPath with proper structure
-        os.execute('mkdir "' .. target_path .. '"')
+        -- Recreate parent directory structure
+        os.execute('if not exist "' .. parent_path .. '" mkdir "' .. parent_path .. '"')
 
-        -- Move contents from temp to target (/MOVE also removes temp)
-        os.execute('robocopy "' .. temp_path .. '" "' .. target_path .. '" /E /MOVE >nul')
-
-        -- Clean up temp if robocopy left it behind
-        os.execute('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
+        -- Move temp to target (renames the directory)
+        os.execute('move "' .. temp_path .. '" "' .. target_path .. '"')
     else
+        -- Remove stale temp from a previous failed install
+        os.execute('rm -rf "' .. temp_path .. '"')
+
         -- Move current rootPath to temp location
         os.execute('mv "' .. root_path .. '" "' .. temp_path .. '"')
 
-        -- Recreate rootPath with proper structure
-        os.execute('mkdir -p "' .. target_path .. '"')
+        -- Recreate parent directory structure
+        os.execute('mkdir -p "' .. parent_path .. '"')
 
-        -- Move contents from temp to target
-        os.execute('mv "' .. temp_path .. '"/* "' .. target_path .. '/"')
-
-        -- Clean up temp
-        os.execute('rm -rf "' .. temp_path .. '"')
+        -- Move temp to target (renames the directory)
+        os.execute('mv "' .. temp_path .. '" "' .. target_path .. '"')
     end
 
     -- Verify installation
