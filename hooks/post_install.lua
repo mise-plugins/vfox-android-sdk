@@ -29,17 +29,23 @@ function PLUGIN:PostInstall(ctx)
     local is_windows = RUNTIME.osType == "windows"
 
     if is_windows then
+        local cmd = require("cmd")
+        local system_root = os.getenv("SystemRoot") or "C:\\Windows"
+        local function run_windows(command)
+            cmd.exec(command, { cwd = system_root })
+        end
+
         -- Remove stale temp from a previous failed install
-        os.execute('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
+        run_windows('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
 
         -- Move current rootPath to temp location
-        os.execute('move "' .. root_path .. '" "' .. temp_path .. '"')
+        run_windows('move "' .. root_path .. '" "' .. temp_path .. '"')
 
         -- Recreate parent directory structure
-        os.execute('if not exist "' .. parent_path .. '" mkdir "' .. parent_path .. '"')
+        run_windows('if not exist "' .. parent_path .. '" mkdir "' .. parent_path .. '"')
 
         -- Move temp to target (renames the directory)
-        os.execute('move "' .. temp_path .. '" "' .. target_path .. '"')
+        run_windows('move "' .. temp_path .. '" "' .. target_path .. '"')
     else
         -- Remove stale temp from a previous failed install
         os.execute('rm -rf "' .. temp_path .. '"')
