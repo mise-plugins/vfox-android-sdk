@@ -31,37 +31,35 @@ function PLUGIN:PostInstall(ctx)
     if is_windows then
         local cmd = require("cmd")
         local system_root = os.getenv("SystemRoot") or "C:\\Windows"
-        local robocopy = file.join_path(system_root, "System32", "robocopy.exe")
-        local function run_windows(command)
-            cmd.exec(command, { cwd = system_root })
-        end
-        local function move_contents(source, destination)
-            run_windows(
-                robocopy
-                    .. ' "'
-                    .. source
-                    .. '" "'
-                    .. destination
-                    .. '" /e /move /nfl /ndl /njh /njs /np'
-                    .. " 1>&2"
-                    .. " & if errorlevel 8 exit /b 1 & exit /b 0"
-            )
+        local function run_powershell(command, env)
+            cmd.exec("powershell.exe -NoLogo -NoProfile -NonInteractive -Command " .. command, {
+                cwd = system_root,
+                env = env,
+            })
         end
 
         -- Remove stale temp from a previous failed install
-        run_windows('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
+        run_powershell(
+            "Remove-Item -LiteralPath $env:TEMP_PATH -Recurse -Force -ErrorAction SilentlyContinue",
+            { TEMP_PATH = temp_path }
+        )
 
-        -- Move current rootPath contents to a temporary location
-        move_contents(root_path, temp_path)
+        -- Move current rootPath to a temporary location
+        run_powershell("Move-Item -LiteralPath $env:ROOT_PATH -Destination $env:TEMP_PATH", {
+            ROOT_PATH = root_path,
+            TEMP_PATH = temp_path,
+        })
 
-        -- Recreate target directory structure
-        run_windows('if not exist "' .. target_path .. '" mkdir "' .. target_path .. '"')
+        -- Recreate parent directory structure
+        run_powershell("New-Item -ItemType Directory -Force -Path $env:PARENT_PATH", {
+            PARENT_PATH = parent_path,
+        })
 
-        -- Move temporary contents into the target directory
-        move_contents(temp_path, target_path)
-
-        -- Remove the empty temporary directory
-        run_windows('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
+        -- Move temp to target (renames the directory)
+        run_powershell("Move-Item -LiteralPath $env:TEMP_PATH -Destination $env:TARGET_PATH", {
+            TEMP_PATH = temp_path,
+            TARGET_PATH = target_path,
+        })
     else
         -- Remove stale temp from a previous failed install
         os.execute('rm -rf "' .. temp_path .. '"')
