@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -27,9 +27,10 @@ jobs:
           java-version: "17"
 
       - name: Test plugin
+        shell: bash
         run: |
-          mise plugin install android-sdk https://github.com/${{ github.repository }}.git
-          mise list-all android-sdk | head -5
+          mise plugins link --force android-sdk .
+          mise list-all android-sdk
           mise install android-sdk@13.0
           mise exec android-sdk@13.0 -- sdkmanager --version
 
