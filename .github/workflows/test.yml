@@ -43,5 +43,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          install: false
+
       - name: Run unit tests
-        run: ./test/run.sh
+        run: mise x lua@5.4 -- ./test/run.sh

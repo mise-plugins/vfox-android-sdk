@@ -70,5 +70,15 @@ if [[ ! -f "$SCRIPT_DIR/resources/repository2-3.xml" ]]; then
 fi
 echo "PASS: Test resources exist"
 
+# Test 6: Verify mirror URL handling
+echo "Test 6: Checking mirror URL handling..."
+if command -v lua &>/dev/null; then
+    ANDROID_SDK_MIRROR_URL="https://mirror.example/android" \
+        lua "$SCRIPT_DIR/mirror_url.lua" "$PLUGIN_DIR"
+    echo "PASS: Mirror URL is used by available and pre-install hooks"
+else
+    echo "SKIP: lua not available for hook tests"
+fi
+
 echo ""
 echo "=== All tests passed ==="
