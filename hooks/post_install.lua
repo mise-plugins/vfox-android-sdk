@@ -34,18 +34,31 @@ function PLUGIN:PostInstall(ctx)
         local function run_windows(command)
             cmd.exec(command, { cwd = system_root })
         end
+        local function move_contents(source, destination)
+            run_windows(
+                'robocopy "'
+                    .. source
+                    .. '" "'
+                    .. destination
+                    .. '" /e /move /nfl /ndl /njh /njs /np'
+                    .. " & if errorlevel 8 exit /b 1 & exit /b 0"
+            )
+        end
 
         -- Remove stale temp from a previous failed install
         run_windows('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
 
-        -- Move current rootPath to temp location
-        run_windows('move "' .. root_path .. '" "' .. temp_path .. '"')
+        -- Move current rootPath contents to a temporary location
+        move_contents(root_path, temp_path)
 
-        -- Recreate parent directory structure
-        run_windows('if not exist "' .. parent_path .. '" mkdir "' .. parent_path .. '"')
+        -- Recreate target directory structure
+        run_windows('if not exist "' .. target_path .. '" mkdir "' .. target_path .. '"')
 
-        -- Move temp to target (renames the directory)
-        run_windows('move "' .. temp_path .. '" "' .. target_path .. '"')
+        -- Move temporary contents into the target directory
+        move_contents(temp_path, target_path)
+
+        -- Remove the empty temporary directory
+        run_windows('if exist "' .. temp_path .. '" rmdir /s /q "' .. temp_path .. '"')
     else
         -- Remove stale temp from a previous failed install
         os.execute('rm -rf "' .. temp_path .. '"')
