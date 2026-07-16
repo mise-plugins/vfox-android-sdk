@@ -27,13 +27,13 @@ function PLUGIN:EnvKeys(ctx)
     }
 
     -- Add tools installed with sdkmanager to PATH, if they exist
-    local optional_bin_paths = {"platform-tools", "emulator"}
-    for _, realtive_optional_bin_path in ipairs(optional_bin_paths) do
-        local optional_bin_path = file.join_path(install_path, realtive_optional_bin_path)
+    local optional_bin_paths = { "platform-tools", "emulator" }
+    for _, relative_optional_bin_path in ipairs(optional_bin_paths) do
+        local optional_bin_path = file.join_path(install_path, relative_optional_bin_path)
         if file.exists(optional_bin_path) then
             table.insert(env_vars, {
                 key = "PATH",
-                value = optional_bin_path
+                value = optional_bin_path,
             })
         end
     end
