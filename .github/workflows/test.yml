@@ -38,6 +38,10 @@ jobs:
           echo y | mise exec android-sdk@13.0 -- sdkmanager platform-tools
           mise exec android-sdk@13.0 -- adb version
 
+      - name: Test version ordering
+        if: matrix.os == 'ubuntu-latest'
+        run: mise x lua@5.4 -- lua test/version_order.lua .
+
   unit-test:
     runs-on: ubuntu-latest
     steps:

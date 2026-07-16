@@ -29,9 +29,21 @@ function PLUGIN:Available(ctx)
         end
     end
 
-    -- Sort versions (simple string sort, works for numeric versions)
+    -- Android command-line tool versions are numeric and must be newest first.
+    -- vfox uses the first available version to resolve an unspecified version.
     table.sort(versions, function(a, b)
-        return a.version < b.version
+        local a_number = tonumber(a.version)
+        local b_number = tonumber(b.version)
+
+        if a_number and b_number then
+            return a_number > b_number
+        elseif a_number then
+            return true
+        elseif b_number then
+            return false
+        end
+
+        return a.version > b.version
     end)
 
     return versions
