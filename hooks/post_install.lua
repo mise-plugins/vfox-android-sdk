@@ -31,16 +31,19 @@ function PLUGIN:PostInstall(ctx)
     if is_windows then
         local cmd = require("cmd")
         local system_root = os.getenv("SystemRoot") or "C:\\Windows"
+        local robocopy = file.join_path(system_root, "System32", "robocopy.exe")
         local function run_windows(command)
             cmd.exec(command, { cwd = system_root })
         end
         local function move_contents(source, destination)
             run_windows(
-                'robocopy "'
+                robocopy
+                    .. ' "'
                     .. source
                     .. '" "'
                     .. destination
                     .. '" /e /move /nfl /ndl /njh /njs /np'
+                    .. " 1>&2"
                     .. " & if errorlevel 8 exit /b 1 & exit /b 0"
             )
         end
