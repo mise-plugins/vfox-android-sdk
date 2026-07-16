@@ -39,10 +39,11 @@ function PLUGIN:PostInstall(ctx)
         end
 
         -- Remove stale temp from a previous failed install
-        run_powershell(
-            "Remove-Item -LiteralPath $env:TEMP_PATH -Recurse -Force -ErrorAction SilentlyContinue",
-            { TEMP_PATH = temp_path }
-        )
+        if file.exists(temp_path) then
+            run_powershell("Remove-Item -LiteralPath $env:TEMP_PATH -Recurse -Force", {
+                TEMP_PATH = temp_path,
+            })
+        end
 
         -- Move current rootPath to a temporary location
         run_powershell("Move-Item -LiteralPath $env:ROOT_PATH -Destination $env:TEMP_PATH", {
