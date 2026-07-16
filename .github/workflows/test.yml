@@ -35,6 +35,8 @@ jobs:
           mise list-all android-sdk
           mise install android-sdk@13.0
           mise exec android-sdk@13.0 -- sdkmanager --version
+          echo y | mise exec android-sdk@13.0 -- sdkmanager platform-tools
+          mise exec android-sdk@13.0 -- adb version
 
   unit-test:
     runs-on: ubuntu-latest
